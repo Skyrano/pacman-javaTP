@@ -1,0 +1,39 @@
+# Board (w: wall, others: fruits)
+wwwwwwwwwwwwwww
+wgggggwwwgggggw
+wgwgwggwggwgwgw
+wgwSwwgwgwwSwgw
+wgwggwgwgwggwgw
+wgwwgggggggwwgw
+wggggwwgwwggggw
+wgwwgwgggwgwwgw
+wgwggwwwwwggwgw
+wgggwwwgwwwgggw
+wgwgwgggggwgwgw
+wgwSggwgwggSwgw
+wgwwgwwgwwgwwgw
+wgggggggggggggw
+wwwwwwwwwwwwwww
+
+# Elements (name,x,y)
+pacman,7,13
+ghost-1,1,1
+ghost-2,13,1
+ghost-3,1,13
+ghost-4,13,13
+
+# Fruits (key,name,value)
+g,Gomme,10
+c,Cerise,100
+f,Fraise,300
+o,Orange,500
+p,Pomme,700
+m,Melon,1000
+G,Galboss,2000
+C,Cloche,3000
+k,Clé,5000
+S,Super,10
+
+# Properties (key=value)
+wait_duration=300
+power_duration=12000
