@@ -1,9 +1,14 @@
 package data;
+import java.awt.*;
 import java.io.File;
-import java.lang.reflect.Array;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
-import java.util.Scanner;
 
 /**
  * An iterator over the initial states of the levels of the pacman game
@@ -20,10 +25,16 @@ public class GameImpl implements Game {
     private int currentLevel;
 
     /**
+     * The path of the level files
+     */
+    private Path levelPath;
+
+    /**
      * Instantiation of the game
      */
     public GameImpl() {
-        this.currentLevel = 0;
+        this.currentLevel = 1;
+        this.levelPath = givePath(currentLevel);
         invariant();
     }
 
@@ -36,37 +47,112 @@ public class GameImpl implements Game {
 
 
     /**
-     *Create a Level object with all the properties and mapping described in a given file
-     * @param filename the file to construct the level from
+     * Give a Path object of the level file with the given number
+     * @return the path to the file of the level with the given number
+     */
+    private Path givePath(int number) {
+        return Paths.get("resources/level" + Integer.toString(number));
+    }
+
+
+    /**
+     *Create a Level object with all the properties and mapping described in the levelPath file
+     *
      * @return a Level object with the properties described in the given file
      */
-    public char[][] readLevelFile(String filename) {
+    private Level readLevelFile() {
 
-        char[][] level;
+        char[][] level = null;
+        int size = 0;
         ArrayList<Element> elementArrayList = new ArrayList<Element>();
         ArrayList<Fruit> fruitArrayList = new ArrayList<Fruit>();
         Properties properties = new Properties();
 
-        String line;
-        Scanner sc = new Scanner("level" + Integer.toString(currentLevel));
-        sc.nextLine();
-        line = sc.nextLine();
+        List<String> content;
+        try {
+            content = Files.readAllLines(levelPath,StandardCharsets.UTF_8);
+        }
+        catch (IOException except) {
+            System.out.println("No file can be found");
+            System.out.println(except.toString());
+            return null;
+        }
+
+        int mode = 0;
         int i = 0;
-        while (!line.contains("#")) {
-            i+=1;
-        }
-        level = new char[i][i];
-        sc.close();
-        sc = new Scanner("level" + Integer.toString(currentLevel));
-        sc.nextLine();
-        while (i!=0) {
-            level[i] = sc.nextLine().toCharArray();
-            i-=1;
-        }
-        sc.nextLine();
+        while (i < content.size() ) {
+            if(content.get(i).contains("#")) {
+                i+=1;
+                mode+=1;
+            }
+            if (size != 0 && level == null){
+                level = new char[size][size];
+            }
 
-        return level;
+            switch (mode) {
+                case 1:
+                    int j = i;
+                    while (!content.get(j).isEmpty()) {
+                        size+=1;
+                        j+=1;
+                    }
+                    mode+=1;
+                    break;
+                case 2:
+                    j = 0;
+                    while (!content.get(i).isEmpty()) {
+                        level[j] = content.get(i).toCharArray();
+                        j+=1;
+                        i+=1;
+                    }
+                    i+=1;
+                    break;
+                case 3:
+                    String[] line = content.get(i).split(",");
+                    String name = line[0];
+                    int xpos = Integer.parseInt(line[1]);
+                    int ypos = Integer.parseInt(line[2]);
+                    elementArrayList.add(new PacmanImpl(new Point(xpos,ypos)));
+                    i+=1;
+                    while (!content.get(i).isEmpty()) {
+                        line = content.get(i).split(",");
+                        name = line[0];
+                        xpos = Integer.parseInt(line[1]);
+                        ypos = Integer.parseInt(line[2]);
+                        elementArrayList.add(new GhostImpl(name,new Point(xpos,ypos)));
+                        i+=1;
+                    }
+                    i+=1;
+                    break;
+                case 4:
+                    char key;
+                    int value;
+                    while (!content.get(i).isEmpty()) {
+                        line = content.get(i).split(",");
+                        key = line[0].toCharArray()[0];
+                        name = line[1];
+                        value = Integer.parseInt(line[2]);
+                        fruitArrayList.add(new FruitImpl(key,name,value));
+                        i+=1;
+                    }
+                    i+=1;
+                    break;
+                case 5:
+                    String pkey;
+                    String pvalue;
+                    while (i < content.size()) {
+                        line = content.get(i).split("=");
+                        pkey = line[0];
+                        pvalue = line[1];
+                        properties.setProperty(pkey,pvalue);
+                        i+=1;
+                    }
+                    i+=1;
+                    break;
+            }
+        }
 
+        return new LevelImpl(level,elementArrayList,fruitArrayList,properties);
     }
 
 
@@ -82,7 +168,8 @@ public class GameImpl implements Game {
     public Level nextLevel() {
         assert hasNextLevel() : "Precondition violated";
         currentLevel+=1;
-        return null;
+        levelPath = givePath(currentLevel);
+        return readLevelFile();
     }
 
     /**
@@ -92,7 +179,7 @@ public class GameImpl implements Game {
      */
     @Override
     public boolean hasNextLevel() {
-        File f = new File("resources/level"+Integer.toString(currentLevel+1));
+        File f = new File(givePath(currentLevel+1).toString());
         if (f.exists()) {
             return true;
         }

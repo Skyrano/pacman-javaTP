@@ -17,8 +17,7 @@ public class Main
      */
     public static void main(String[] args)
     {
-        data.GameImpl dataGame = new data.GameImpl();
-        dataGame.readLevelFile("level1");
+        data.GameMock dataGame = new data.GameMock();
         logic.Game logicGame = new logic.GameMock(dataGame);
         view.Game viewGame = new view.GameMock(logicGame);
         viewGame.animate();

@@ -133,10 +133,6 @@ public class LevelImpl implements Level {
     @Override
     public boolean isWall(int x, int y) {
         assert x >= 0 && x < getSize() && x >= 0 && y < getSize() : "Precondition violated";
-
-        if (level[x][y] == 'w') {
-            return true;
-        }
-        return false;
+        return "w".equals(level[x][y]);
     }
 }
