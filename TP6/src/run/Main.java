@@ -17,7 +17,7 @@ public class Main
      */
     public static void main(String[] args)
     {
-        data.GameMock dataGame = new data.GameMock();
+        data.GameImpl dataGame = new data.GameImpl();
         logic.Game logicGame = new logic.GameMock(dataGame);
         view.Game viewGame = new view.GameMock(logicGame);
         viewGame.animate();
