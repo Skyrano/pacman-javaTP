@@ -39,7 +39,7 @@ public class Canvas
     /**
      * The canvas initial background color
      */
-    public static final Color BACKGROUND = Color.WHITE;
+    public static final Color BACKGROUND = Color.BLACK;
 
     /**
      * this class unique instance (singleton)
@@ -77,7 +77,7 @@ public class Canvas
 
     /**
      * the reference objects used as keys in the shapes map in the order of
-     * their addition (cf {@link #draw()})
+     * their addition (cf {@link #redraw()})
      */
     private final Queue<Object> objects;
 

@@ -17,7 +17,7 @@ import java.util.Properties;
  *
  * @inv !hasNextLevel() || nextLevel() != null
  */
-public class GameImpl implements Game {
+public class GameImpl implements data.Game {
 
     /**
      * The index of the level where the player is playing
@@ -33,7 +33,7 @@ public class GameImpl implements Game {
      * Instantiation of the game
      */
     public GameImpl() {
-        this.currentLevel = 1;
+        this.currentLevel = 0;
         this.levelPath = givePath(currentLevel);
         invariant();
     }
