@@ -33,7 +33,7 @@ public class GameImpl implements data.Game {
      * Instantiation of the game
      */
     public GameImpl() {
-        this.currentLevel = 0;
+        this.currentLevel = 1;
         this.levelPath = givePath(currentLevel);
         invariant();
     }
@@ -152,7 +152,14 @@ public class GameImpl implements data.Game {
             }
         }
 
-        return new LevelImpl(level,elementArrayList,fruitArrayList,properties);
+        char[][] reversedLevel = new char[level.length][level.length];
+        for(int x = 0;x<level.length;x++) {
+            for(int y = 0;y<level.length;y++) {
+                reversedLevel[x][y] = level[y][x];
+            }
+        }
+
+        return new LevelImpl(reversedLevel,elementArrayList,fruitArrayList,properties);
     }
 
 

@@ -27,21 +27,10 @@ public class GameImpl extends view.Game{
     /**
      * Display the current state of the game
      */
-    public void draw () {
+    protected void draw () {
 
-        StringBuilder builder = new StringBuilder();
-        for (int j = 0; j < game.getSize(); j++) {
-            for (int i = 0; i < game.getSize(); i++) {
-                Cell cell = game.getCell(i, j);
-                char c = cell.hasPacman() ? 'P' : cell.getGhost() != null ? 'G' : cell.getFruit() != null ? 'o' : cell.isWall() ? 'x' : ' ';
-                builder.append(c);
-            }
-            builder.append('\n');
-        }
-        System.out.println(builder.toString() + score.toString());
-
-
-
+        int caseLength = canvas.WIDTH/game.getSize();
+        System.out.println(caseLength);
         canvas.clear();
         Cell currentCell;
         Figure currentFig = null;
@@ -49,18 +38,18 @@ public class GameImpl extends view.Game{
             for (int y = 0;y< game.getSize();y++) {
                 currentCell = game.getCell(x,y);
                 if (currentCell.isWall()){
-                    currentFig = new WallFigure(x*34,y*34);
+                    currentFig = new WallFigure(x*caseLength,y*caseLength,caseLength);
                 }
                 else if (currentCell.hasPacman()) {
-                    currentFig = new PacmanFigure(x*34,y*34);
+                    currentFig = new PacmanFigure(x*caseLength,y*caseLength,caseLength);
                 }
                 else if (currentCell.getGhost() != null) {
                     String name = currentCell.getGhost();
-                    currentFig = new GhostFigure(x*34,y*34,name);
+                    currentFig = new GhostFigure(x*caseLength,y*caseLength, caseLength,name);
                 }
                 else if (currentCell.getFruit() != null) {
                     String name = currentCell.getFruit();
-                    currentFig = new FruitFigure(x*34,y*34,name);
+                    currentFig = new FruitFigure(x*caseLength,y*caseLength,caseLength,name);
                 }
 
                 if (currentFig!= null) {

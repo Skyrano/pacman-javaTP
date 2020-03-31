@@ -8,8 +8,8 @@ public class FruitFigure extends Figure{
 
     private String name;
 
-    FruitFigure(int x, int y, String name) {
-        super(giveColor(name), giveShape(x,y,name));
+    FruitFigure(int x, int y, int caseLength, String name) {
+        super(giveColor(name), giveShape(x,y,caseLength,name));
         this.name = name;
     }
 
@@ -25,9 +25,9 @@ public class FruitFigure extends Figure{
             case "Orange":
                 return Color.orange;
             case "Pomme":
-                return Color.yellow;
-            case "Melon":
                 return Color.green;
+            case "Melon":
+                return Color.yellow;
             case "Galboss":
                 return Color.darkGray;
             case "Cloche":
@@ -40,28 +40,28 @@ public class FruitFigure extends Figure{
         return null;
     }
 
-    private static Shape giveShape (int x, int y, String name) {
+    private static Shape giveShape (int x, int y, int caseLength, String name) {
         switch (name) {
             case "Gomme":
-                return new Ellipse2D.Double(x, y, 10, 10);
+                return new Ellipse2D.Double(x+caseLength*0.35, y+caseLength*0.35, caseLength*0.3, caseLength*0.3);
             case "Cerise":
-                return new Ellipse2D.Double(x, y, 10, 10);
+                return new Ellipse2D.Double(x+caseLength*0.35, y+caseLength*0.35, caseLength*0.3, caseLength*0.3);
             case "Fraise":
-                return new Polygon(new int[] {x+0,x+5,x+10}, new int[] {y+0,y+10,y+0},3);
+                return new Polygon(new int[] {(int) (x + (caseLength*0.35)), (int) (x+5+caseLength*0.35), (int) (x+10+caseLength*0.35)}, new int[] {(int) (y+caseLength*0.35), (int) (y+10+caseLength*0.35), (int) (y+caseLength*0.35)},3);
             case "Orange":
-                return new Ellipse2D.Double(x, y, 10, 10);
+                return new Ellipse2D.Double(x+caseLength*0.35, y+caseLength*0.35, caseLength*0.3, caseLength*0.3);
             case "Pomme":
-                return new Ellipse2D.Double(x, y, 10, 10);
+                return new Ellipse2D.Double(x+caseLength*0.35, y+caseLength*0.35, caseLength*0.3, caseLength*0.3);
             case "Melon":
-                return new Ellipse2D.Double(x, y, 10, 10);
+                return new Ellipse2D.Double(x+caseLength*0.35, y+caseLength*0.35, caseLength*0.3, caseLength*0.3);
             case "Galboss":
-                return new Polygon(new int[] {x+0,x+10,x+20},new int[] {y+0,y+10,y+0},3);
+                return new Polygon(new int[] {(int) (x+caseLength*0.25), (int) (x+10+caseLength*0.25), (int) (x+20+caseLength*0.25)},new int[] {(int) (y+caseLength*0.35), (int) (y+10+caseLength*0.35), (int) (y+caseLength*0.35)},3);
             case "Cloche":
-                return new Polygon(new int[] {x+0,x+5,x+10},new int[] {y+0,y+20,y+0},3);
+                return new Polygon(new int[] {(int) (x+caseLength*0.35), (int) (x+5+caseLength*0.35), (int) (x+10+caseLength*0.35)},new int[] {(int) (y+20+caseLength*0.20), (int) (y+caseLength*0.20), (int) (y+20+caseLength*0.20)},3);
             case "Clé":
-                return new Polygon(new int[] {x+0,x+3,x+3,x+10,x+10,x+0},new int[] {y+0,y+0,y+10,y+10,y+13,y+13},6);
+                return new Polygon(new int[] {(int) (x+caseLength*0.40), (int) (x+3+caseLength*0.40), (int) (x+3+caseLength*0.40), (int) (x+10+caseLength*0.40), (int) (x+10+caseLength*0.40), (int) (x+caseLength*0.40)}, new int[] {(int) (y+caseLength*0.25), (int) (y+caseLength*0.25), (int) (y+15+caseLength*0.25), (int) (y+15+caseLength*0.25), (int) (y+18+caseLength*0.25), (int) (y+18+caseLength*0.25)},6);
             case "Super":
-                return new Ellipse2D.Double(x, y, 20, 20);
+                return new Ellipse2D.Double(x+caseLength*0.25, y+caseLength*0.25, caseLength*0.5, caseLength*0.5);
         }
         return null;
     }
