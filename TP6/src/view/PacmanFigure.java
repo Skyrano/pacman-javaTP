@@ -46,16 +46,16 @@ public class PacmanFigure extends Figure{
         switch (direction) {
             case 0:
                 start = 30;
-                return new Arc2D.Double(x+caseLength*0.1,y+caseLength*0.05,caseLength*0.85,caseLength*0.85,(0 % 360)+start, extent,type);
+                return new Arc2D.Double(x+caseLength*0.1,y+caseLength*0.05,caseLength*0.85,caseLength*0.85,start, extent,type);
             case 1:
                 start = 120;
-                return new Arc2D.Double(x+caseLength*0.1,y+caseLength*0.05,caseLength*0.85,caseLength*0.85,(0 % 360)+start, extent,type);
+                return new Arc2D.Double(x+caseLength*0.1,y+caseLength*0.05,caseLength*0.85,caseLength*0.85,start, extent,type);
             case 2:
                 start = 210;
-                return new Arc2D.Double(x+caseLength*0.1,y+caseLength*0.05,caseLength*0.85,caseLength*0.85,(0 % 360)+start, extent,type);
+                return new Arc2D.Double(x+caseLength*0.1,y+caseLength*0.05,caseLength*0.85,caseLength*0.85,start, extent,type);
             case 3:
                 start = 300;
-                return new Arc2D.Double(x+caseLength*0.1,y+caseLength*0.05,caseLength*0.85,caseLength*0.85,(0 % 360)+start, extent,type);
+                return new Arc2D.Double(x+caseLength*0.1,y+caseLength*0.05,caseLength*0.85,caseLength*0.85,start, extent,type);
         }
         return null;
     }
