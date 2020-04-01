@@ -3,6 +3,8 @@ package view;
 
 import logic.Cell;
 
+import java.awt.*;
+
 /**
  * The pacman game view. Displays the game current status and allow user
  * interactions in order to move the pacman
@@ -56,6 +58,7 @@ public class GameImpl extends view.Game{
                 }
             }
         }
+        canvas.drawString(score, Color.white,score.toString(),10,15);
         canvas.redraw();
     }
 

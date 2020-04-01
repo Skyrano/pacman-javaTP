@@ -33,7 +33,7 @@ public class GameImpl implements data.Game {
      * Instantiation of the game
      */
     public GameImpl() {
-        this.currentLevel = 1;
+        this.currentLevel = 0;
         this.levelPath = givePath(currentLevel);
         invariant();
     }
