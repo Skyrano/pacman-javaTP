@@ -1,6 +1,5 @@
 package view;
 
-
 import logic.Cell;
 
 import java.awt.*;
@@ -62,6 +61,11 @@ public class GameImpl extends view.Game{
         canvas.redraw();
     }
 
+    /**
+     * Run the game steps lauched periodically, with a delay between each step.
+     * At each step, move the pacman according to the arrow key currently
+     * pressed, and compute and display the game state accordingly
+     */
     @Override
     public void animate() {
         while (!this.game.isFinished()) {

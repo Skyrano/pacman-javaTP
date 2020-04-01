@@ -1,19 +1,38 @@
 package view;
 
 import java.awt.*;
-import java.awt.geom.Arc2D;
 import java.awt.geom.Ellipse2D;
 
+
+/**
+ * A class symbolizing a Fruit or an general Element derived from Figure
+ *
+ * @author Alistair Rameau
+ */
 public class FruitFigure extends Figure{
 
+    /**
+     * The name of the element or fruit
+     */
     private String name;
 
+    /**
+     * The constructor
+     * @param x the x position of the element in the canvas
+     * @param y the y position of the element in the canvas
+     * @param caseLength the length of one case in the canvas
+     * @param name the name of the element
+     */
     FruitFigure(int x, int y, int caseLength, String name) {
         super(giveColor(name), giveShape(x,y,caseLength,name));
         this.name = name;
     }
 
-
+    /**
+     * Give a certain color depending on the parameters
+     * @param name the name of the element or fruit
+     * @return the color corresponding to the given name
+     */
     private static Color giveColor (String name) {
         switch (name) {
             case "Gomme":
@@ -40,6 +59,14 @@ public class FruitFigure extends Figure{
         return null;
     }
 
+    /**
+     * Give a certain shape depending on the parameters
+     * @param x the x position of the element
+     * @param y the y position of the element
+     * @param caseLength the length of one case in the canvas
+     * @param name the name of the element
+     * @return the shape corresponding to the given parameters
+     */
     private static Shape giveShape (int x, int y, int caseLength, String name) {
         switch (name) {
             case "Gomme":
@@ -66,6 +93,10 @@ public class FruitFigure extends Figure{
         return null;
     }
 
+    /**
+     * The getter of the element's name
+     * @return the String name
+     */
     public String getName() {
         return name;
     }
