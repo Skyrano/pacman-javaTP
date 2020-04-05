@@ -29,4 +29,5 @@ public interface Score
      * @return the current level
      */
     int level();
+
 }

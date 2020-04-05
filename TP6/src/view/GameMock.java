@@ -12,7 +12,6 @@ public class GameMock extends Game
 {
     /**
      * Constructor
-     *
      * @param game the game logic
      */
     public GameMock(logic.Game game)

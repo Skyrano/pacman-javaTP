@@ -21,7 +21,6 @@ public abstract class Figure {
 
     /**
      * The constructor
-     *
      * @param color the color of the figure
      * @param shape the shape of the figure
      */

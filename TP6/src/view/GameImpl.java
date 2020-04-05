@@ -30,7 +30,7 @@ public class GameImpl extends view.Game{
      */
     protected void draw () {
 
-        int caseLength = canvas.WIDTH/game.getSize();
+        int caseLength = Canvas.WIDTH /game.getSize();
         canvas.clear();
         Cell currentCell;
         Figure currentFig = null;
@@ -74,7 +74,6 @@ public class GameImpl extends view.Game{
             int dx = this.canvas.isRightPressed() ? 1 : this.canvas.isLeftPressed() ? -1 : 0;
             int dy = dx != 0 ? 0 : this.canvas.isDownPressed() ? 1 : this.canvas.isUpPressed() ? -1 : 0;
             play(dx, dy); // compute the next step according to the pacman move (given by the arrow key pressed)
-            PacmanFigure.changeDirection(dx,dy);
         }
         draw();
     }

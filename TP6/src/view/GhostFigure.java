@@ -16,6 +16,13 @@ public class GhostFigure extends Figure{
     private String name;
 
     /**
+     * The state of the ghost eating ability in relation with the pacman
+     * true -> can be eaten
+     * false -> cannot be eaten
+     */
+    private static boolean eatableState = false;
+
+    /**
      * The constructor
      * @param x the x position of the ghost
      * @param y the y position of the ghost
@@ -23,9 +30,21 @@ public class GhostFigure extends Figure{
      * @param name the name of the ghost
      */
     GhostFigure(int x, int y, int caseLength, String name) {
-        super(Color.white, new Arc2D.Double(x+caseLength*0.07,y+caseLength*0.1,caseLength*0.85,caseLength*0.85,320, 260,Arc2D.OPEN));
+        super(giveColor(), new Arc2D.Double(x+caseLength*0.07,y+caseLength*0.1,caseLength*0.85,caseLength*0.85,320, 260,Arc2D.OPEN));
         this.name = name;
-        //new Rectangle2D.Double(x+caseLength*0.17,y+caseLength*0.14,caseLength*0.7,caseLength*0.7)
+    }
+
+    /**
+     * Give a certain color depending on the current eating ability
+     * @return the color corresponding to the current eating ability
+     */
+    private static Color giveColor() {
+        if (eatableState) {
+            return Color.darkGray;
+        }
+        else {
+            return Color.white;
+        }
     }
 
     /**
@@ -34,5 +53,12 @@ public class GhostFigure extends Figure{
      */
     public String getName() {
         return name;
+    }
+
+    /**
+     * Inverse the current state of the ghost eating ability
+     */
+    public static void changeEatable() {
+        eatableState = !eatableState;
     }
 }
