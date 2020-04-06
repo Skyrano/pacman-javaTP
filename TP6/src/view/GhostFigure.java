@@ -45,13 +45,13 @@ public class GhostFigure extends Figure{
         else {
             switch (name) {
                 case "ghost-1":
-                    return Color.yellow;
-                case "ghost-2":
                     return Color.red;
+                case "ghost-2":
+                    return Color.yellow;
                 case "ghost-3":
                     return Color.green;
                 case "ghost-4":
-                    return Color.orange;
+                    return Color.cyan;
                 default:
                     return Color.darkGray;
             }
@@ -69,7 +69,7 @@ public class GhostFigure extends Figure{
     /**
      * Inverse the current state of the ghost eating ability
      */
-    public static void changeEatable() {
-        eatableState = !eatableState;
+    public static void setEatable(boolean value) {
+        eatableState = value;
     }
 }

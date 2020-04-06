@@ -21,6 +21,10 @@ import java.util.TimerTask;
  */
 public class GameImpl implements Game {
 
+    /**
+     * The game data we want to use
+     */
+    public final data.Game game;
 
     /**
      * The array representing the eaten elements
@@ -68,19 +72,15 @@ public class GameImpl implements Game {
     private Timer superTimer;
 
     /**
-     * The game data we want to use
-     */
-    public data.Game game;
-
-    /**
      * Tell if the game is finished with the victory of the player
      */
     private boolean lastLevelFinished;
 
     /**
-     * A grid symbolizing the level to help generate the path for the ghost
+     * A mapping symbolizing the level to help generate the path for the ghost
      */
-    private char[][] grid;
+    private Dijkstra pathfinder;
+
 
 
     /**
@@ -124,8 +124,8 @@ public class GameImpl implements Game {
                 ghostEaten.add(false);
             }
         }
-        this.generateGrid();
-        this.superState = false;
+        this.pathfinder = new Dijkstra(generateGrid(),'w');
+        this.resetSuper();
         this.superTimer = new Timer();
         this.invariant();
     }
@@ -183,7 +183,6 @@ public class GameImpl implements Game {
     }
 
 
-
     /**
      * Give the cell at the given location
      *
@@ -193,19 +192,19 @@ public class GameImpl implements Game {
      * @return the cell at the given location
      *
      * @pre !isFinished()
-     * @pre x >= 0 && x < getSize() && x >= 0 && y < getSize()
+     * @pre x >= 0 && x < getSize() && y >= 0 && y < getSize()
      * @post ret != null
      */
     @Override
     public Cell getCell(int x, int y) {
-        assert !isFinished() && x >= 0 && x < getSize() && x >= 0 && y < getSize() : "Preconditions violated";
+        assert !isFinished() && x >= 0 && x < getSize() && y >= 0 && y < getSize() : "Preconditions violated";
         boolean iswall = level.isWall(x,y);
 
         boolean haspacman = (pacmanLocation.x == x && pacmanLocation.y == y);
 
         String ghostName =  null;
         int index = ghostLocations.indexOf(new Point(x,y));
-        if (index != -1 && ghostEaten.get(index) == false) {
+        if (index != -1 && !ghostEaten.get(index)) {
             ghostName = ghostNames.get(index);
         }
 
@@ -226,7 +225,7 @@ public class GameImpl implements Game {
      */
     @Override
     public boolean isFinished() {
-        return score.lives() == 0 || lastLevelFinished;
+        return score.lives() <= 0 || lastLevelFinished;
     }
 
     /**
@@ -257,17 +256,12 @@ public class GameImpl implements Game {
     @Override
     public void play(int dx, int dy) {
         assert !isFinished() && dx >= -1 && dx <= 1 && dy >= -1 && dy <= 1 && !(dx != 0 && dy != 0) : "Precondition violated";
-        PacmanFigure.changeDirection(dx,dy);
-        this.movePacman(dx,dy);
         this.moveGhosts();
+        this.movePacman(dx,dy);
+        PacmanFigure.changeDirection(dx,dy);
         this.eatGhost();
         this.eatFruit();
         this.levelFinished();
-        /*
-        for (int i = 0; i < ghostLocations.size(); i++) {
-            Point location = ghostLocations.get(i);
-            ghostLocations.set(i, new Point(location.x + dx, location.y + dy));
-        }*/
     }
 
 
@@ -281,18 +275,36 @@ public class GameImpl implements Game {
         if (!this.eaten[x][y] && fruit != null) {
             this.eaten[x][y] = true;
             this.score.addPoints(fruit.getValue());
-            if (fruit.getKey() == 'S' && !superState && ghostEaten.indexOf(false) != -1) {
-                superState = true;
-                GhostFigure.changeEatable();
-                superTimer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        System.out.println("test");
-                        superState = false;
-                        GhostFigure.changeEatable();
-                    }
-                }, this.getPowerDuration());
+            if (fruit.getKey() == 'S') {
+                this.setSuper();
             }
+        }
+    }
+
+    /**
+     * Set the pacman in the state where it can eat the ghosts
+     */
+    private void setSuper() {
+        if (!superState) {
+            superState = true;
+            GhostFigure.setEatable(true);
+            superTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    resetSuper();
+                }
+            }, this.getPowerDuration());
+        }
+    }
+
+    /**
+     * Disable the state where the pacman can eat the ghosts
+     */
+    private void resetSuper() {
+        if(superState) {
+            superTimer.purge();
+            superState = false;
+            GhostFigure.setEatable(false);
         }
     }
 
@@ -304,9 +316,9 @@ public class GameImpl implements Game {
         for (int i = 0; i < ghostLocations.size(); i++) {
             Point location = ghostLocations.get(i);
             if (!ghostEaten.get(i) && location.distance(pacmanLocation) == 0) {
+                ghostEaten.set(i,true);
                 if (superState) {
-                    ghostEaten.set(i,true);
-                    score.addPoints(200);
+                    score.addPoints(300);
                 }
                 else {
                     score.loseLife();
@@ -316,7 +328,7 @@ public class GameImpl implements Game {
     }
 
     /**
-     * Verify if the level is finished, i.e. if all the fruits are eaten, and change to next level or finish the game
+     * Verifies if the level is finished, i.e. if all the fruits are eaten, and changes it to next level or finishes the game
      */
     private void levelFinished() {
         boolean finished = true;
@@ -338,6 +350,7 @@ public class GameImpl implements Game {
 
     /**
      * Move the pacman to the desired position if there is no wall
+     *
      * @param dx the x movement wanted
      * @param dy the y movement wanted
      */
@@ -353,35 +366,61 @@ public class GameImpl implements Game {
      * Move all the ghosts with a defined pattern for each one
      */
     private void moveGhosts() {
-        int[] dx = new int[ghostLocations.size()];
-        int[] dy = new int[ghostLocations.size()];
-
-        Pathfinding.Dijkstra(this.grid,pacmanLocation,'w');
-
+        pathfinder.generateMapping(pacmanLocation);
         for (int i = 0; i < ghostLocations.size(); i++) {
             if(ghostNames.get(i).equals("ghost-1")) {
-                System.out.println("On cherche le point suivant");
-                ghostLocations.set(i,Pathfinding.closerPoint(ghostLocations.get(i)));
+                if (superState) {
+                    ghostLocations.set(i, pathfinder.furtherPoint(ghostLocations.get(i)));
+                }
+                else {
+                    ghostLocations.set(i, pathfinder.closerPoint(ghostLocations.get(i)));
+                }
+            }
+            else if(ghostNames.get(i).equals("ghost-2")) {
+                if (superState) {
+                    ghostLocations.set(i, pathfinder.pseudoRandomFurtherPoint(ghostLocations.get(i),0.2));
+                }
+                else {
+                    ghostLocations.set(i, pathfinder.pseudoRandomCloserPoint(ghostLocations.get(i),0.2));
+                }
+            }
+            else if(ghostNames.get(i).equals("ghost-3")) {
+                if (superState) {
+                    ghostLocations.set(i, pathfinder.pseudoRandomFurtherPoint(ghostLocations.get(i),0.4));
+                }
+                else {
+                    ghostLocations.set(i, pathfinder.pseudoRandomCloserPoint(ghostLocations.get(i),0.4));
+                }
+            }
+            else if(ghostNames.get(i).equals("ghost-4")) {
+                if (superState) {
+                    ghostLocations.set(i, pathfinder.pseudoRandomFurtherPoint(ghostLocations.get(i),0.6));
+                }
+                else {
+                    ghostLocations.set(i, pathfinder.pseudoRandomCloserPoint(ghostLocations.get(i),0.6));
+                }
             }
         }
     }
 
     /**
      * Generate a raw grid of the level, i.e. with only the walls and pathway, to help finding the paths of the ghosts
+     *
      * @return the grid corresponding to the current level
      */
-    private void generateGrid() {
-        this.grid = new char[level.getSize()][level.getSize()];
+    private char[][] generateGrid() {
+        char[][] grid = new char[level.getSize()][level.getSize()];
         for (int i = 0; i < level.getSize(); i++) {
             for (int j = 0; j < level.getSize(); j++) {
                 if(getCell(i,j).isWall()) {
-                    this.grid[i][j] = 'w';
+                    grid[i][j] = 'w';
                 }
                 else {
-                    this.grid[i][j] = 'x';
+                    grid[i][j] = 'x';
                 }
             }
         }
+        return grid;
     }
 
 }
