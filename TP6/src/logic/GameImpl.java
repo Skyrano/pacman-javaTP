@@ -72,7 +72,15 @@ public class GameImpl implements Game {
      */
     public data.Game game;
 
+    /**
+     * Tell if the game is finished with the victory of the player
+     */
     private boolean lastLevelFinished;
+
+    /**
+     * A grid symbolizing the level to help generate the path for the ghost
+     */
+    private char[][] grid;
 
 
     /**
@@ -96,6 +104,9 @@ public class GameImpl implements Game {
     }
 
 
+    /**
+     * Extract all the data from the next level into the logic class
+     */
     private void nextLevel(){
         this.level = game.nextLevel();
         this.score.nextLevel();
@@ -113,8 +124,9 @@ public class GameImpl implements Game {
                 ghostEaten.add(false);
             }
         }
-        superState = false;
-        superTimer = new Timer();
+        this.generateGrid();
+        this.superState = false;
+        this.superTimer = new Timer();
         this.invariant();
     }
 
@@ -247,6 +259,7 @@ public class GameImpl implements Game {
         assert !isFinished() && dx >= -1 && dx <= 1 && dy >= -1 && dy <= 1 && !(dx != 0 && dy != 0) : "Precondition violated";
         PacmanFigure.changeDirection(dx,dy);
         this.movePacman(dx,dy);
+        this.moveGhosts();
         this.eatGhost();
         this.eatFruit();
         this.levelFinished();
@@ -265,10 +278,10 @@ public class GameImpl implements Game {
         int x = pacmanLocation.x;
         int y = pacmanLocation.y;
         Fruit fruit = level.getFruit(x,y);
-        if (this.eaten[x][y] == false && fruit != null) {
+        if (!this.eaten[x][y] && fruit != null) {
             this.eaten[x][y] = true;
             this.score.addPoints(fruit.getValue());
-            if (fruit.getKey() == 'S' && superState == false && ghostEaten.indexOf(false) != -1) {
+            if (fruit.getKey() == 'S' && !superState && ghostEaten.indexOf(false) != -1) {
                 superState = true;
                 GhostFigure.changeEatable();
                 superTimer.schedule(new TimerTask() {
@@ -290,10 +303,10 @@ public class GameImpl implements Game {
     private void eatGhost() {
         for (int i = 0; i < ghostLocations.size(); i++) {
             Point location = ghostLocations.get(i);
-            if (ghostEaten.get(i) == false && location.distance(pacmanLocation) == 0) {
-                if (superState == true) {
+            if (!ghostEaten.get(i) && location.distance(pacmanLocation) == 0) {
+                if (superState) {
                     ghostEaten.set(i,true);
-                    score.addPoints(100);
+                    score.addPoints(200);
                 }
                 else {
                     score.loseLife();
@@ -309,7 +322,7 @@ public class GameImpl implements Game {
         boolean finished = true;
         for (int i = 0; i < level.getSize(); i++) {
             for (int j = 0; j < level.getSize(); j++) {
-                if (getCell(i,j).getFruit() != null && this.eaten[i][j] == false) {
+                if (getCell(i,j).getFruit() != null && !this.eaten[i][j]) {
                     finished = false;
                     break;
                 }
@@ -336,16 +349,39 @@ public class GameImpl implements Game {
         }
     }
 
-
+    /**
+     * Move all the ghosts with a defined pattern for each one
+     */
     private void moveGhosts() {
         int[] dx = new int[ghostLocations.size()];
         int[] dy = new int[ghostLocations.size()];
 
-        for (int i = 0; i < ghostLocations.size(); i++) {
+        Pathfinding.Dijkstra(this.grid,pacmanLocation,'w');
 
+        for (int i = 0; i < ghostLocations.size(); i++) {
+            if(ghostNames.get(i).equals("ghost-1")) {
+                System.out.println("On cherche le point suivant");
+                ghostLocations.set(i,Pathfinding.closerPoint(ghostLocations.get(i)));
+            }
         }
     }
 
-
+    /**
+     * Generate a raw grid of the level, i.e. with only the walls and pathway, to help finding the paths of the ghosts
+     * @return the grid corresponding to the current level
+     */
+    private void generateGrid() {
+        this.grid = new char[level.getSize()][level.getSize()];
+        for (int i = 0; i < level.getSize(); i++) {
+            for (int j = 0; j < level.getSize(); j++) {
+                if(getCell(i,j).isWall()) {
+                    this.grid[i][j] = 'w';
+                }
+                else {
+                    this.grid[i][j] = 'x';
+                }
+            }
+        }
+    }
 
 }

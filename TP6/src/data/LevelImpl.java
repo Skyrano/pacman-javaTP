@@ -135,4 +135,5 @@ public class LevelImpl implements Level {
         assert x >= 0 && x < getSize() && x >= 0 && y < getSize() : "Precondition violated";
         return level[x][y] == 'w';
     }
+
 }
