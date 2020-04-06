@@ -57,7 +57,7 @@ public class GameImpl extends view.Game{
                 }
             }
         }
-        canvas.drawString(score, Color.white,score.toString(),10,15);
+        canvas.drawString(score, Color.white,score.toString(),20,20);
         canvas.redraw();
     }
 
@@ -76,5 +76,7 @@ public class GameImpl extends view.Game{
             play(dx, dy); // compute the next step according to the pacman move (given by the arrow key pressed)
         }
         draw();
+        canvas.drawString(score, Color.white,"Finished, your score is "+score.points()+" points",this.canvas.WIDTH/2-100,20);
+        canvas.redraw();
     }
 }

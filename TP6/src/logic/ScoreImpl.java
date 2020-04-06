@@ -29,7 +29,7 @@ public class ScoreImpl implements Score {
     public ScoreImpl() {
         this.lives = 3;
         this.points = 0;
-        this.level = 1;
+        this.level = 0;
     }
 
     /**
@@ -38,7 +38,7 @@ public class ScoreImpl implements Score {
      * @return a String representing the current score
      */
     public String toString() {
-        return "Lives: " + lives + "   Points: " + points + "   Level: " + level;
+        return "Lives: " + lives + "     Points: " + points + "     Level: " + level;
     }
 
 

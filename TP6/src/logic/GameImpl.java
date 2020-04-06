@@ -30,7 +30,7 @@ public class GameImpl implements Game {
     /**
      * The initial level state
      */
-    private final Level level;
+    private Level level;
 
     /**
      * The current pacman location
@@ -40,12 +40,12 @@ public class GameImpl implements Game {
     /**
      * The currents ghosts locations
      */
-    private final List<Point> ghostLocations;
+    private List<Point> ghostLocations;
 
     /**
      * The currents ghosts names
      */
-    private final List<String> ghostNames;
+    private List<String> ghostNames;
 
     /**
      * The currents ghosts names
@@ -67,6 +67,13 @@ public class GameImpl implements Game {
      */
     private Timer superTimer;
 
+    /**
+     * The game data we want to use
+     */
+    public data.Game game;
+
+    private boolean lastLevelFinished;
+
 
     /**
      * Constructor
@@ -75,8 +82,23 @@ public class GameImpl implements Game {
      */
     public GameImpl(data.Game game)
     {
+        this.game = game;
+        this.lastLevelFinished = false;
         this.score = new ScoreImpl();
+        this.nextLevel();
+    }
+
+    /**
+     * Verify the invariant conditions
+     */
+    private void invariant() {
+        assert getScore() != null && !(!isFinished() && getScore().level() < 0) : "Invariant conditions are violated";
+    }
+
+
+    private void nextLevel(){
         this.level = game.nextLevel();
+        this.score.nextLevel();
         this.eaten = new boolean[level.getSize()][level.getSize()];
         this.ghostLocations = new ArrayList<>();
         this.ghostNames = new ArrayList<>();
@@ -94,13 +116,6 @@ public class GameImpl implements Game {
         superState = false;
         superTimer = new Timer();
         this.invariant();
-    }
-
-    /**
-     * Verify the invariant conditions
-     */
-    private void invariant() {
-        assert getScore() != null && !(!isFinished() && getScore().level() < 0) : "Invariant conditions are violated";
     }
 
     /**
@@ -199,7 +214,7 @@ public class GameImpl implements Game {
      */
     @Override
     public boolean isFinished() {
-        return score.lives() == 0;
+        return score.lives() == 0 || lastLevelFinished;
     }
 
     /**
@@ -231,9 +246,10 @@ public class GameImpl implements Game {
     public void play(int dx, int dy) {
         assert !isFinished() && dx >= -1 && dx <= 1 && dy >= -1 && dy <= 1 && !(dx != 0 && dy != 0) : "Precondition violated";
         PacmanFigure.changeDirection(dx,dy);
-        this.pacmanLocation = new Point(pacmanLocation.x + dx, pacmanLocation.y + dy);
+        this.movePacman(dx,dy);
         this.eatGhost();
         this.eatFruit();
+        this.levelFinished();
         /*
         for (int i = 0; i < ghostLocations.size(); i++) {
             Point location = ghostLocations.get(i);
@@ -243,9 +259,7 @@ public class GameImpl implements Game {
 
 
     /**
-     * Make the pacman eat the fruit at the given position
-     * @param x the x position of the cell where the element is eaten
-     * @param y the y position of the cell where the element is eaten
+     * Make the pacman eat the fruit at the current pacman position
      */
     private void eatFruit() {
         int x = pacmanLocation.x;
@@ -254,7 +268,7 @@ public class GameImpl implements Game {
         if (this.eaten[x][y] == false && fruit != null) {
             this.eaten[x][y] = true;
             this.score.addPoints(fruit.getValue());
-            if (fruit.getKey() == 'S') {
+            if (fruit.getKey() == 'S' && superState == false && ghostEaten.indexOf(false) != -1) {
                 superState = true;
                 GhostFigure.changeEatable();
                 superTimer.schedule(new TimerTask() {
@@ -270,12 +284,16 @@ public class GameImpl implements Game {
     }
 
 
+    /**
+     * Make the pacman eat or be eaten by the ghost at the pacman position
+     */
     private void eatGhost() {
         for (int i = 0; i < ghostLocations.size(); i++) {
             Point location = ghostLocations.get(i);
             if (ghostEaten.get(i) == false && location.distance(pacmanLocation) == 0) {
                 if (superState == true) {
                     ghostEaten.set(i,true);
+                    score.addPoints(100);
                 }
                 else {
                     score.loseLife();
@@ -283,6 +301,51 @@ public class GameImpl implements Game {
             }
         }
     }
+
+    /**
+     * Verify if the level is finished, i.e. if all the fruits are eaten, and change to next level or finish the game
+     */
+    private void levelFinished() {
+        boolean finished = true;
+        for (int i = 0; i < level.getSize(); i++) {
+            for (int j = 0; j < level.getSize(); j++) {
+                if (getCell(i,j).getFruit() != null && this.eaten[i][j] == false) {
+                    finished = false;
+                    break;
+                }
+            }
+        }
+        if (finished && game.hasNextLevel()) {
+            this.nextLevel();
+        }
+        else if (finished) {
+            this.lastLevelFinished = true;
+        }
+    }
+
+    /**
+     * Move the pacman to the desired position if there is no wall
+     * @param dx the x movement wanted
+     * @param dy the y movement wanted
+     */
+    private void movePacman(int dx, int dy) {
+        int nextX = pacmanLocation.x + dx;
+        int nextY = pacmanLocation.y + dy;
+        if (!(getCell(nextX,nextY).isWall())) {
+            this.pacmanLocation = new Point(nextX,nextY);
+        }
+    }
+
+
+    private void moveGhosts() {
+        int[] dx = new int[ghostLocations.size()];
+        int[] dy = new int[ghostLocations.size()];
+
+        for (int i = 0; i < ghostLocations.size(); i++) {
+
+        }
+    }
+
 
 
 }
