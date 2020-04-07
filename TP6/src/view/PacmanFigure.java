@@ -38,23 +38,11 @@ public class PacmanFigure extends Figure{
     }
 
     /**
-     * Change the direction of the pacman with the given parameters
-     * @param dx the x difference in the last movement
-     * @param dy the y difference in the last movement
+     * Change the direction of the pacman with the given parameter
+     * @param new_direction the new direction of the pacman shape
      */
-    public static void changeDirection(int dx, int dy) {
-        if (dx == 1 && dy == 0) {
-            direction = 0;
-        }
-        else if (dx == 0 && dy == -1) {
-            direction = 1;
-        }
-        else if (dx == -1 && dy == 0) {
-            direction = 2;
-        }
-        else if (dx == 0 && dy == 1) {
-            direction = 3;
-        }
+    public static void setDirection(int new_direction) {
+            direction = new_direction;
     }
 
     /**

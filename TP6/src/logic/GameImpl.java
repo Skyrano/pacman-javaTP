@@ -81,7 +81,10 @@ public class GameImpl implements Game {
      */
     private Dijkstra pathfinder;
 
-
+    /**
+     * The direction of the pacman symbolized by an integer between 0 and 3 included
+     */
+    private int pacmanDirection;
 
     /**
      * Constructor
@@ -124,6 +127,7 @@ public class GameImpl implements Game {
                 ghostEaten.add(false);
             }
         }
+        this.pacmanDirection = 0;
         this.pathfinder = new Dijkstra(generateGrid(),'w');
         this.resetSuper();
         this.superTimer = new Timer();
@@ -258,10 +262,33 @@ public class GameImpl implements Game {
         assert !isFinished() && dx >= -1 && dx <= 1 && dy >= -1 && dy <= 1 && !(dx != 0 && dy != 0) : "Precondition violated";
         this.moveGhosts();
         this.movePacman(dx,dy);
-        PacmanFigure.changeDirection(dx,dy);
+        this.changeDirection(dx,dy);
         this.eatGhost();
         this.eatFruit();
         this.levelFinished();
+    }
+
+    /**
+     * Changes the integer direction of the pacman according to the move wanted
+     * by the player
+     *
+     * @param dx the x movement wanted by the player
+     * @param dy the y movement wanted by the player
+     */
+    private void changeDirection(int dx, int dy) {
+        if (dx == 1 && dy == 0) {
+            this.pacmanDirection = 0;
+        }
+        else if (dx == 0 && dy == -1) {
+            this.pacmanDirection = 1;
+        }
+        else if (dx == -1 && dy == 0) {
+            this.pacmanDirection = 2;
+        }
+        else if (dx == 0 && dy == 1) {
+            this.pacmanDirection = 3;
+        }
+        PacmanFigure.setDirection(pacmanDirection);
     }
 
 
@@ -366,9 +393,9 @@ public class GameImpl implements Game {
      * Move all the ghosts with a defined pattern for each one
      */
     private void moveGhosts() {
-        pathfinder.generateMapping(pacmanLocation);
         for (int i = 0; i < ghostLocations.size(); i++) {
             if(ghostNames.get(i).equals("ghost-1")) {
+                pathfinder.generateMapping(pacmanLocation);
                 if (superState) {
                     ghostLocations.set(i, pathfinder.furtherPoint(ghostLocations.get(i)));
                 }
@@ -377,6 +404,7 @@ public class GameImpl implements Game {
                 }
             }
             else if(ghostNames.get(i).equals("ghost-2")) {
+                pathfinder.generateMapping(nextIntersectionPoint(1));
                 if (superState) {
                     ghostLocations.set(i, pathfinder.pseudoRandomFurtherPoint(ghostLocations.get(i),0.2));
                 }
@@ -385,23 +413,78 @@ public class GameImpl implements Game {
                 }
             }
             else if(ghostNames.get(i).equals("ghost-3")) {
+                pathfinder.generateMapping(nextIntersectionPoint(-1));
                 if (superState) {
-                    ghostLocations.set(i, pathfinder.pseudoRandomFurtherPoint(ghostLocations.get(i),0.4));
+                    ghostLocations.set(i, pathfinder.pseudoRandomFurtherPoint(ghostLocations.get(i),0.2));
                 }
                 else {
-                    ghostLocations.set(i, pathfinder.pseudoRandomCloserPoint(ghostLocations.get(i),0.4));
+                    ghostLocations.set(i, pathfinder.pseudoRandomCloserPoint(ghostLocations.get(i),0.2));
                 }
             }
             else if(ghostNames.get(i).equals("ghost-4")) {
+                pathfinder.generateMapping(pacmanLocation);
                 if (superState) {
-                    ghostLocations.set(i, pathfinder.pseudoRandomFurtherPoint(ghostLocations.get(i),0.6));
+                    ghostLocations.set(i, pathfinder.pseudoRandomFurtherPoint(ghostLocations.get(i),0.5));
                 }
                 else {
-                    ghostLocations.set(i, pathfinder.pseudoRandomCloserPoint(ghostLocations.get(i),0.6));
+                    ghostLocations.set(i, pathfinder.pseudoRandomCloserPoint(ghostLocations.get(i),0.5));
                 }
             }
         }
     }
+
+
+    /**
+     * Computes the point corresponding to the next intersection of the level
+     * direction = 1 -> we look for an intersection ahead of the pacman
+     * direction = -1 -> we look for an intersection behind the pacman
+     *
+     * @param direction the direction where we want to look compared to the current pacman direction
+     * @return the point of the next intersection with another pathway or a ghost in the given direction
+     */
+    private Point nextIntersectionPoint(int direction) {
+        int dx = 0;
+        int dy = 0;
+        switch (this.pacmanDirection) {
+            case 0 :
+                dx = 1;
+                dy = 0;
+                break;
+            case 1:
+                dx = 0;
+                dy = -1;
+                break;
+            case 2:
+                dx = -1;
+                dy = 0;
+                break;
+            case 3:
+                dx = 0;
+                dy = 1;
+                break;
+        }
+        dx*=direction;
+        dy*=direction;
+        Point point = pacmanLocation;
+        int nextX = pacmanLocation.x + dx;
+        int nextY = pacmanLocation.y + dy;
+        if (dx != 0) {
+            while (!getCell(nextX,nextY).isWall() && getCell(nextX,nextY).getGhost() == null && getCell(nextX,nextY+1).isWall() && getCell(nextX,nextY-1).isWall()) {
+                point = new Point(nextX,nextY);
+                nextX += dx;
+            }
+            System.out.println(point);
+        }
+        if (dy != 0) {
+            while (!getCell(nextX,nextY).isWall() && getCell(nextX,nextY).getGhost() == null && getCell(nextX+1,nextY).isWall() && getCell(nextX-1,nextY).isWall()) {
+                point = new Point(nextX,nextY);
+                nextY += dy;
+            }
+        }
+        return point;
+    }
+
+
 
     /**
      * Generate a raw grid of the level, i.e. with only the walls and pathway, to help finding the paths of the ghosts
